@@ -267,6 +267,7 @@ FunctionCallStatement returns FunctionCallStatement:
 	function=[Function|ID] '(' (parameters+=Expression ( "," parameters+=Expression)*)? ')';
 
 
+
 /*****************************************************************************
  *       EXPRESSIONS                                                         *
  *****************************************************************************/
@@ -274,7 +275,7 @@ FunctionCallStatement returns FunctionCallStatement:
 	//ExternExpression | EnumLiteralRef | IntegerLiteral | BooleanLiteral | StringLiteral | DoubleLiteral | NotExpression | UnaryMinus | 
 	//PlusExpression | MinusExpression | TimesExpression | DivExpression | ModExpression | EqualsExpression | NotEqualsExpression | GreaterExpression | 
 	//LowerExpression | GreaterOrEqualExpression | LowerOrEqualExpression | AndExpression | OrExpression | PropertyReference | ArrayIndex | 
-	//ExpressionGroup | FunctionCallExpression | MessageParameter | Reference;
+	//ExpressionGroup | FunctionCallExpression | MessageParameter | Reference | MCUExpression;
 
 
 Expression: OrExpression;
@@ -337,7 +338,7 @@ ArrayIndexPostfix returns Expression:
 
 AtomicExpression returns Expression:
 	ExternExpression | Literal | ArrayInit |  PropertyReference | FunctionCallExpression 
-	 | EventReference 
+	 | EventReference | MCUExpression
 ;
 
 ExternExpression returns ExternExpression:
@@ -389,7 +390,34 @@ FunctionCallExpression returns FunctionCallExpression:
 		( parameters+=Expression ( "," parameters+=Expression )* )?
 	')';
 
+MCUExpression returns MCUExpression:
+	(command = PWMCommand) | (command = GPIOCommand) | (command = ADCCommand);
 
+PWMCommand returns PWMCommand: 
+	'pwm' (dev = DeviceIdentifier) (op = PWMOperation);
+
+GPIOCommand returns GPIOCommand: 
+	'gpio' (dev = DeviceIdentifier) (op = GPIOOperation);
+
+DeviceIdentifier returns DeviceIdentifier:
+	(port = Expression) ',' (pin = Expression); 
+
+PWMOperation returns PWMOperation: 
+	'conf' (dutyCycle = Expression) ',' (frequency = Expression) |
+	'start' |
+	'stop';
+
+GPIOOperation returns GPIOOperation: 
+	'conf' ((dir = 'in') | (dir = 'out')) |
+	'read' |
+	'write' (value = Expression);
+
+ADCCommand returns ADCCommand:  
+	'adc' (dev = DeviceIdentifier) (op = ADCOperation);
+
+ADCOperation returns ADCOperation:
+	'read';
+	
 /*****************************************************************************
  *       CONFIGURATIONS                                                      *
  *****************************************************************************/

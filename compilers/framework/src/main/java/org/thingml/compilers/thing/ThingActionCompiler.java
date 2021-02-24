@@ -40,6 +40,7 @@ import org.thingml.xtext.thingML.ExternExpression;
 import org.thingml.xtext.thingML.ExternStatement;
 import org.thingml.xtext.thingML.ForAction;
 import org.thingml.xtext.thingML.FunctionCallExpression;
+import org.thingml.xtext.thingML.MCUExpression;
 import org.thingml.xtext.thingML.FunctionCallStatement;
 import org.thingml.xtext.thingML.GreaterExpression;
 import org.thingml.xtext.thingML.GreaterOrEqualExpression;
@@ -236,6 +237,8 @@ public class ThingActionCompiler {
             generate((ExternExpression) expression, builder, ctx);
         } else if (expression instanceof FunctionCallExpression) {
             generate((FunctionCallExpression) expression, builder, ctx);
+        } else if (expression instanceof MCUExpression) {
+            generate((MCUExpression) expression, builder, ctx);
         } else if (expression instanceof EventReference) {
         	generate((EventReference) expression, builder, ctx);
         } else if (expression instanceof CastExpression) {
@@ -360,6 +363,10 @@ public class ThingActionCompiler {
     }
 
     public void generate(FunctionCallExpression expression, StringBuilder builder, Context ctx) {
+        throw (new UnsupportedOperationException("This expression (" + expression.getClass().getName() + ") is platform-specific and should be refined!"));
+    }
+    
+    public void generate(MCUExpression expression, StringBuilder builder, Context ctx) {
         throw (new UnsupportedOperationException("This expression (" + expression.getClass().getName() + ") is platform-specific and should be refined!"));
     }
     

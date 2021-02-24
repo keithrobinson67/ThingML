@@ -17,11 +17,16 @@
 package org.thingml.compilers.c.arduino;
 
 import org.thingml.compilers.Context;
+import org.thingml.compilers.c.CCompilerContext;
 import org.thingml.compilers.c.CThingActionCompiler;
 import org.thingml.xtext.helpers.AnnotatedElementHelper;
 import org.thingml.xtext.thingML.CastExpression;
 import org.thingml.xtext.thingML.ErrorAction;
 import org.thingml.xtext.thingML.Expression;
+import org.thingml.xtext.thingML.MCUExpression;
+import org.thingml.xtext.thingML.PWMCommand;
+import org.thingml.xtext.thingML.GPIOCommand;
+import org.thingml.xtext.thingML.ADCCommand;
 import org.thingml.xtext.thingML.PrintAction;
 
 /**
@@ -46,6 +51,20 @@ public class CThingActionCompilerArduino extends CThingActionCompiler {
         generate(action.getMsg(), b, ctx);
 
         builder.append("// PRINT ERROR: " + b.toString() + "\n");
+    }
+    
+    @Override
+    public void generate(MCUExpression expression, StringBuilder builder, Context ctx) {
+        CCompilerContext context = (CCompilerContext) ctx;
+        if (expression.getCommand() instanceof PWMCommand) {
+            builder.append("/* PWM expression here */");
+        } else if (expression.getCommand() instanceof GPIOCommand) {
+            builder.append("/* GPIO expression here */");
+        } else if (expression.getCommand() instanceof ADCCommand) {
+            builder.append("/* ADC expression here */");
+        } else  {
+            builder.append("/* unrecognised MCU expression here */");
+        }
     }
 
     @Override

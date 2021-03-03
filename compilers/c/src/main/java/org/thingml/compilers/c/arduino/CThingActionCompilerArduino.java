@@ -57,11 +57,50 @@ public class CThingActionCompilerArduino extends CThingActionCompiler {
     public void generate(MCUExpression expression, StringBuilder builder, Context ctx) {
         CCompilerContext context = (CCompilerContext) ctx;
         if (expression.getCommand() instanceof PWMCommand) {
-            builder.append("/* PWM expression here */");
+        	PWMCommand com = (PWMCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("start")) {
+            	final StringBuilder duty = new StringBuilder();
+            	final StringBuilder frequency = new StringBuilder();
+            	generate(com.getOp().getDuty(), duty, ctx);
+            	generate(com.getOp().getFrequency(), frequency, ctx);
+        		builder.append("analogWrite(" + port.toString() + pin.toString() + "," + duty.toString() + ")");
+        	} else if (com.getOp().getType().equals("stop")) {
+        		builder.append("noAnalogWrite(" + port.toString() + pin.toString() + ")");
+        	}
         } else if (expression.getCommand() instanceof GPIOCommand) {
-            builder.append("/* GPIO expression here */");
+        	GPIOCommand com = (GPIOCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("setmode")) {
+        		if (com.getOp().getDir().equals("in")) {
+        			builder.append("pinMode(" + port.toString() + pin.toString() + ",INPUT)");
+        		} else if (com.getOp().getDir().equals("out")) {
+        			builder.append("pinMode(" + port.toString() + pin.toString() + ",OUTPUT)");
+        		}
+        	} else if (com.getOp().getType().equals("read")) {
+        		builder.append("digitalRead(" + port.toString() + pin.toString() + ")");
+        	} else if (com.getOp().getType().equals("write")) {
+        		final StringBuilder val = new StringBuilder();
+            	generate(com.getOp().getValue(), val, ctx);
+        		builder.append("digitalWrite(" + port.toString() + pin.toString() + "," + val.toString() + ")");
+        	}
         } else if (expression.getCommand() instanceof ADCCommand) {
-            builder.append("/* ADC expression here */");
+        	ADCCommand com = (ADCCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("read")) {
+        		builder.append("analogRead(" + port.toString() + pin.toString() + ")");
+        	} else if (com.getOp().getType().equals("setref")) {
+        		builder.append("analogReference(DEFAULT)");
+        	} 
         } else  {
             builder.append("/* unrecognised MCU expression here */");
         }

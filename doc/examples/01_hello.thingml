@@ -1,5 +1,15 @@
+import "datatypes.thingml" from stl
 
 thing HelloThing {
+	
+	property value : UInt8 = 0
+	property port1 : UInt8 = 5
+	property pin1 : UInt8 = 7
+	
+	function init_motor() do
+		value = gpio 0, 0 write 0 as UInt8
+		//value = testval + testval1
+	end
 	
 	statechart HelloStateChart init HelloState {
 		

@@ -391,32 +391,42 @@ FunctionCallExpression returns FunctionCallExpression:
 	')';
 
 MCUExpression returns MCUExpression:
-	(command = PWMCommand) | (command = GPIOCommand) | (command = ADCCommand);
+	(command = PWMCommand) | 
+	(command = GPIOCommand) | 
+	(command = ADCCommand)
+	;
 
 PWMCommand returns PWMCommand: 
-	'pwm' (dev = DeviceIdentifier) (op = PWMOperation);
+	'pwm' (dev = DeviceIdentifier) (op = PWMOperation)
+	;
 
 GPIOCommand returns GPIOCommand: 
-	'gpio' (dev = DeviceIdentifier) (op = GPIOOperation);
+	'gpio' (dev = DeviceIdentifier) (op = GPIOOperation)
+	;
 
 DeviceIdentifier returns DeviceIdentifier:
-	(port = Expression) ',' (pin = Expression); 
+	(port = Expression) ',' (pin = Expression)
+	; 
 
 PWMOperation returns PWMOperation: 
-	'conf' (dutyCycle = Expression) ',' (frequency = Expression) |
-	'start' |
-	'stop';
+	(type = 'start') (duty = Expression) ',' (frequency = Expression) |
+	(type = 'stop')
+	;
 
 GPIOOperation returns GPIOOperation: 
-	'conf' ((dir = 'in') | (dir = 'out')) |
-	'read' |
-	'write' (value = Expression);
+	(type = 'setmode') ((dir = 'in') | (dir = 'out')) |
+	(type = 'read') |
+	(type = 'write') (value = Expression)
+	;
 
 ADCCommand returns ADCCommand:  
-	'adc' (dev = DeviceIdentifier) (op = ADCOperation);
+	'adc' (dev = DeviceIdentifier) (op = ADCOperation)
+	;
 
 ADCOperation returns ADCOperation:
-	'read';
+	(type = 'read') |
+	(type = 'setref') 
+	;
 	
 /*****************************************************************************
  *       CONFIGURATIONS                                                      *

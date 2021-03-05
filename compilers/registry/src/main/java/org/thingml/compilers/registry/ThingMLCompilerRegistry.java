@@ -27,6 +27,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.thingml.compilers.ThingMLCompiler;
+import org.thingml.compilers.c.C51.C51Compiler;
 import org.thingml.compilers.c.arduino.ArduinoCompiler;
 import org.thingml.compilers.c.arduinomf.ArduinomfCompiler;
 import org.thingml.compilers.c.posix.PosixCompiler;
@@ -63,6 +64,7 @@ public class ThingMLCompilerRegistry {
             instance = new ThingMLCompilerRegistry();
             instance.addCompiler(new AutoThingMLCompiler(instance::createCompilerInstanceByName));
             instance.addCompiler(new ArduinoCompiler());
+            instance.addCompiler(new C51Compiler());
             instance.addCompiler(new ArduinomfCompiler());
             instance.addCompiler(new PosixCompiler());
             instance.addCompiler(new PosixMTCompiler());

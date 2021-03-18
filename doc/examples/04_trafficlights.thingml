@@ -1,0 +1,98 @@
+import "datatypes.thingml" from stl
+import "timer.thingml" from stl
+
+thing TrafficLights includes TimerClientPort {
+	
+	readonly property TimerID : UInt8 = 1
+    property value : Int16 = 0
+    
+    function init_lights() do
+    	value = (gpio 0, 2 setmode out) as Int16
+    	value = (gpio 0, 3 setmode out) as Int16
+    	value = (gpio 0, 4 setmode out) as Int16
+    end
+	
+    function set_go() do
+		value = (gpio 0, 4 write 0) as Int16
+		value = (gpio 0, 2 write 0) as Int16
+		value = (gpio 0, 3 write 1) as Int16
+	end
+	
+	function set_stop() do
+		value = (gpio 0, 4 write 1) as Int16
+		value = (gpio 0, 2 write 0) as Int16
+		value = (gpio 0, 3 write 0) as Int16
+	end
+	
+	function set_stopping() do
+		value = (gpio 0, 4 write 0) as Int16
+		value = (gpio 0, 2 write 1) as Int16
+		value = (gpio 0, 3 write 0) as Int16
+	end
+	
+	function set_ready() do
+		value = (gpio 0, 4 write 1) as Int16
+		value = (gpio 0, 2 write 1) as Int16
+		value = (gpio 0, 3 write 0) as Int16
+	end
+
+	statechart init Init {
+		
+		state Init {
+			on entry do
+				init_lights()
+			end		
+			
+			transition -> Go	
+		}
+		
+		state Go {
+			
+			on entry do
+				set_go()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Stopping event e : timer?timer_timeout 
+		}
+		
+		state Stopping {
+			
+			on entry do
+				set_stopping()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Stopped event e : timer?timer_timeout 
+		}
+		
+		state Ready {
+			
+			on entry do
+				set_ready()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Go event e : timer?timer_timeout
+		}
+		
+		state Stopped {
+			
+			on entry do
+				set_stop()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Ready event e : timer?timer_timeout
+		}
+	}
+}
+
+configuration TrafficLightsArduino
+@compiler "arduino"
+@arduino_stdout "Serial"
+{
+	instance trafficlights: TrafficLights 
+	instance timer : TimerArduino
+	connector trafficlights.timer => timer.timer
+}

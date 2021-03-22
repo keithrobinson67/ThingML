@@ -266,13 +266,20 @@ public class CThingApiCompiler extends ThingApiCompiler {
                 builder.append("void register_" + ctx.getSenderName(thing, port, msg) + "_listener(");
                 builder.append("void (" + getCppNameScope() + "*_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append(");\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append(" reentrant);\n");
+                else
+                	builder.append(");\n");
+                	
 
                 //external
                 builder.append("void register_external_" + ctx.getSenderName(thing, port, msg) + "_listener(");
                 builder.append("void (" + getCppNameScope() + "*_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append(");\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append(" reentrant);\n");
+                else
+                	builder.append(");\n");
 
 
             }

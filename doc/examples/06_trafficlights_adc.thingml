@@ -1,0 +1,143 @@
+import "datatypes.thingml" from stl
+import "timer.thingml" from stl
+
+thing fragment AdcMessages {
+	message request();
+	message response(value : UInt16);
+}
+
+thing AdcMonitor includes AdcMessages {
+	
+    property adcval : Int16 = 0
+    
+    provided port adc_service {
+		sends response
+		receives request
+	}
+	
+	statechart init  Wait {
+		
+		state Wait {
+			
+			transition -> Wait event e : adc_service?request 
+			action do
+				adcval = (adc 0, 0 read) as Int16
+				adc_service!response(adcval)
+			end
+		}		
+	}
+}
+
+thing TrafficLights includes AdcMessages, TimerClientPort {
+	
+	readonly property TimerID : UInt8 = 1
+    property status : Int16 = 0
+    property adcval : Int16 = 0
+    
+    function init_lights() do
+    	status = (gpio 0, 9 setmode out) as Int16
+    	status = (gpio 0, 10 setmode out) as Int16
+    	status = (gpio 0, 11 setmode out) as Int16
+    end
+	
+    function set_go() do
+		status = (pwm 0, 9 stop) as Int16
+		status = (pwm 0, 10 stop) as Int16
+		status = (pwm 0, 11 start adcval/4, 1000) as Int16
+	end
+	
+	function set_stop() do
+		status = (pwm 0, 9 start adcval/4, 1000) as Int16
+		status = (pwm 0, 10 stop) as Int16
+		status = (pwm 0, 11 stop) as Int16
+	end
+	
+	function set_stopping() do
+		status = (pwm 0, 9 stop) as Int16
+		status = (pwm 0, 10 start adcval/4, 1000) as Int16
+		status = (pwm 0, 11 stop) as Int16
+	end
+	
+	function set_ready() do
+		status = (pwm 0, 9 start adcval/4, 1000) as Int16
+		status = (pwm 0, 10 start adcval/4, 1000) as Int16
+		status = (pwm 0, 11 stop) as Int16
+	end
+	
+	required port adc_client {
+		sends request
+		receives response
+	}
+
+	statechart init Init {
+		
+		state Init {
+			on entry do
+				init_lights()
+			end		
+			
+			transition -> GetADC
+		}
+		
+		state GetADC {
+			on entry do
+				adc_client!request()
+			end	
+			transition -> Go event e : adc_client?response 
+			action do
+				adcval = e.value
+			end
+		}
+		
+		state Go {
+			
+			on entry do
+				set_go()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Stopping event e : timer?timer_timeout 
+		}
+		
+		state Stopping {
+			
+			on entry do
+				set_stopping()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Stopped event e : timer?timer_timeout 
+		}
+		
+		state Ready {
+			
+			on entry do
+				set_ready()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> GetADC event e : timer?timer_timeout
+		}
+		
+		state Stopped {
+			
+			on entry do
+				set_stop()
+				timer!timer_start(TimerID, 1000)
+			end
+			
+			transition -> Ready event e : timer?timer_timeout
+		}
+	}
+}
+
+configuration TrafficLightsArduino
+@compiler "arduino"
+@arduino_stdout "Serial"
+{
+	instance trafficlights: TrafficLights 
+	instance timer : TimerArduino
+	instance adcmonitor : AdcMonitor
+	connector trafficlights.timer => timer.timer
+	connector trafficlights.adc_client => adcmonitor.adc_service
+}

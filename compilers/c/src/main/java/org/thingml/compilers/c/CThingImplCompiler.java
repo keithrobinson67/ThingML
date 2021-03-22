@@ -697,18 +697,27 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
                 //var
                 builder.append("void (*external_" + ctx.getSenderName(thing, port, msg) + "_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append("= 0x0;\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append("reentrant = 0x0;\n");
+                else
+                	builder.append("= 0x0;\n");
 
                 // Variable for the function pointer
                 builder.append("void (*" + ctx.getSenderName(thing, port, msg) + "_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append("= 0x0;\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append("reentrant = 0x0;\n");
+                else
+                	builder.append("= 0x0;\n");
 
                 //register
                 builder.append("void " + getCppNameScope() + "register_external_" + ctx.getSenderName(thing, port, msg) + "_listener(");
                 builder.append("void (" + getCppNameScope() + "*_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append("){\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append("reentrant){\n");
+                else
+                	builder.append("){\n");
                 builder.append("external_" + ctx.getSenderName(thing, port, msg) + "_listener = _listener;\n");
                 builder.append("}\n");
 
@@ -716,7 +725,10 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
                 builder.append("void " + getCppNameScope() + "register_" + ctx.getSenderName(thing, port, msg) + "_listener(");
                 builder.append("void (" + getCppNameScope() + "*_listener)");
                 ctx.appendFormalTypeSignature(thing, builder, msg);
-                builder.append("){\n");
+                if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                	builder.append("reentrant){\n");
+                else
+                	builder.append("){\n");
                 builder.append("" + ctx.getSenderName(thing, port, msg) + "_listener = _listener;\n");
                 builder.append("}\n");
 

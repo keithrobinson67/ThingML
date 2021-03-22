@@ -88,6 +88,14 @@ thing TrafficLights includes TimerClientPort {
 	}
 }
 
+configuration TrafficLights8051
+@compiler "8051"
+{
+	instance trafficlights: TrafficLights 
+	instance timer : TimerArduino
+	connector trafficlights.timer => timer.timer
+}
+
 configuration TrafficLightsArduino
 @compiler "arduino"
 @arduino_stdout "Serial"

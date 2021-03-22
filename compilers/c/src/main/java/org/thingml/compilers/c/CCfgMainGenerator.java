@@ -382,7 +382,10 @@ public class CCfgMainGenerator extends CfgMainGenerator {
                     builder.append("// Enqueue of messages " + t.getName() + "::" + p.getName() + "::" + m.getName() + "\n");
                     builder.append("void " + getCppNameScope() + "enqueue_" + ctx.getSenderName(t, p, m));
                     ctx.appendFormalParameters(t, builder, m);
-                    builder.append("{\n");
+                    if (ctx.getCompiler().getID().compareTo("8051") == 0)
+                    	builder.append("reentrant{\n");
+                    else
+                    	builder.append("{\n");
 
                     if ((ctx.traceLevelIsAbove(t, 2)) || (ctx.traceLevelIsAbove(p, 2))) {
                         builder.append(ctx.getTraceFunctionForString(cfg));
@@ -1152,6 +1155,8 @@ public class CCfgMainGenerator extends CfgMainGenerator {
             builder.append("while (mbufi < (" + ctx.getMessageSerializationSizeString(m) + " - 2" + ")) mbuf[mbufi++] = fifo_dequeue();\n");
             // Fill the buffer
 
+            // conform to C90 compiler, ensure variables are declared in new block
+            builder.append("{\n");
             //DEBUG
             if (ctx.traceLevelIsAbove(cfg, 2)) {
                 builder.append(ctx.getTraceFunctionForString(cfg) + "\"[PMQ] Dequeue "
@@ -1240,7 +1245,7 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 
             builder.append("dispatch_" + m.getName() + "(");
             builder.append("(mbuf[0] << 8) + mbuf[1] /* instance port*/");
-
+            
             //long idx = 2;
 
             for (Parameter pt : m.getParameters()) {
@@ -1258,6 +1263,9 @@ public class CCfgMainGenerator extends CfgMainGenerator {
             		 
             	}
             }
+            
+            // end block
+            builder.append("\n}");
 
             builder.append("break;\n}\n");
         }

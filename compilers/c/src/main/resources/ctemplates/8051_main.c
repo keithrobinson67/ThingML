@@ -1,11 +1,12 @@
 /*C_HEADERS*/
+typedef uint8_t byte;
+typedef uint8_t bool;
+#define true 1
+#define false 0
 
 /*CONFIGURATION*/
 
 /*C_GLOBALS*/
-
-typedef uint8_t byte;
-typedef uint8_t bool;
 
 void setup() {
 /*INIT_CODE*/

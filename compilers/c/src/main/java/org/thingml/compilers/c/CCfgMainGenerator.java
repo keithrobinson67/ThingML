@@ -416,7 +416,9 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 
                     for (Parameter pt : m.getParameters()) {
                         builder.append("\n// parameter " + pt.getName() + "\n");
+                        builder.append("{\n");
                         ctx.bytesToSerialize(pt.getTypeRef().getType(), builder, pt.getName(), pt);
+                        builder.append("}\n");
                     }
                     builder.append("}\n");
 
@@ -1175,24 +1177,15 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 
             // Deserialization of the parameters
             builder.append("uint8_t mbufi_" + m.getName() + " = 2;\n");
-
+            
+            // generate parameter declarations
             for (Parameter pt : m.getParameters()) {
-            	
-            	
-            	if (ctx.isPointer(pt.getTypeRef().getType())) {
-                	
+            	if (ctx.isPointer(pt.getTypeRef().getType())) {                	
                 	if (ctx.getCType(pt.getTypeRef().getType()).equals("char *") && !pt.getTypeRef().isIsArray()) { // This is a null terminated String.
                         builder.append("union u_" + m.getName() + "_" + pt.getName() + "_t {\n");
 	                    builder.append(ctx.getCType(pt.getTypeRef().getType()) + " p;\n");
 	                    builder.append("byte bytebuffer[sizeof(void *)];\n");
 	                    builder.append("} u_" + m.getName() + "_" + pt.getName() + ";\n");
-	                    
-	                    builder.append("for (uint8_t ___i=0; ___i<sizeof(void *); ___i++)\n");
-	                    
-	                    builder.append("  u_" + m.getName() + "_" + pt.getName() + ".bytebuffer[___i]");
-                        builder.append(" = mbuf[mbufi_" + m.getName() + " + ___i];\n");
-    
-	                    builder.append("mbufi_" + m.getName() + " += sizeof(void *);\n");
                 	}
                 	else {
                         // This should not happen and should be checked before.
@@ -1209,7 +1202,34 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 	                    builder.append("    " + ctx.getCType(t) + " p[" + cardBuilder + "];\n");
 	                    builder.append("    byte bytebuffer[" + ctx.getCByteSize(t, 0) + "* (" + cardBuilder + ")];\n");
 	                    builder.append("} u_" + v + ";\n");
-	
+	                } else {
+	                    builder.append("union u_" + m.getName() + "_" + pt.getName() + "_t {\n");
+	                    builder.append(ctx.getCType(pt.getTypeRef().getType()) + " p;\n");
+	                    builder.append("byte bytebuffer[" + ctx.getCByteSize(pt.getTypeRef().getType(), 0) + "];\n");
+	                    builder.append("} u_" + m.getName() + "_" + pt.getName() + ";\n");
+	                }
+	            }
+            }
+            
+            // generate parameter formatting
+            for (Parameter pt : m.getParameters()) {          	
+            	if (ctx.isPointer(pt.getTypeRef().getType())) {
+                	if (ctx.getCType(pt.getTypeRef().getType()).equals("char *") && !pt.getTypeRef().isIsArray()) { // This is a null terminated String.	                    
+	                    builder.append("for (uint8_t ___i=0; ___i<sizeof(void *); ___i++)\n");
+	                    builder.append("  u_" + m.getName() + "_" + pt.getName() + ".bytebuffer[___i]");
+                        builder.append(" = mbuf[mbufi_" + m.getName() + " + ___i];\n");
+	                    builder.append("mbufi_" + m.getName() + " += sizeof(void *);\n");
+                	}
+                	else {
+                        // This should not happen and should be checked before.
+                        throw  new Error("ERROR: Attempting to deserialize a pointer (for type " + pt.getTypeRef().getType().getName() + "). This is not allowed.");
+                	}
+                } else {
+	                if(pt.getTypeRef().isIsArray()) {
+	                    StringBuilder cardBuilder = new StringBuilder();
+	                    ctx.getCompiler().getThingActionCompiler().generate(pt.getTypeRef().getCardinality(), cardBuilder, ctx);
+	                    String v = m.getName() + "_" + pt.getName();
+	                    Type t = pt.getTypeRef().getType();	
 	                    builder.append("uint8_t u_" + v + "_index = 0;\n");
 	                    builder.append("while (u_" + v + "_index < (" + ctx.getCByteSize(t, 0) + "* (" + cardBuilder + "))) {\n");
 	                    for (int i = 0; i < ctx.getCByteSize(pt.getTypeRef().getType(), 0); i++) {
@@ -1220,29 +1240,18 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 	                    }
 	                    builder.append("    u_" + v + "_index++;\n");
 	                    builder.append("}\n");
-	                    
 	                    builder.append("mbufi_" + m.getName() + " += " + ctx.getCByteSize(pt.getTypeRef().getType(), 0) + " * (" + cardBuilder + ");\n");
 	                } else {
-	                    builder.append("union u_" + m.getName() + "_" + pt.getName() + "_t {\n");
-	                    builder.append(ctx.getCType(pt.getTypeRef().getType()) + " p;\n");
-	                    builder.append("byte bytebuffer[" + ctx.getCByteSize(pt.getTypeRef().getType(), 0) + "];\n");
-	                    builder.append("} u_" + m.getName() + "_" + pt.getName() + ";\n");
-	
-	
 	                    for (int i = 0; i < ctx.getCByteSize(pt.getTypeRef().getType(), 0); i++) {
-	
 	                    	//builder.append("u_" + m.getName() + "_" + pt.getName() + ".bytebuffer[" + (ctx.getCByteSize(pt.getTypeRef().getType(), 0) - i - 1) + "]");
 	                        builder.append("u_" + m.getName() + "_" + pt.getName() + ".bytebuffer[" + i + "]");
 	                        builder.append(" = mbuf[mbufi_" + m.getName() + " + " + i + "];\n");
-	
 	                    }
-	
 	                    builder.append("mbufi_" + m.getName() + " += " + ctx.getCByteSize(pt.getTypeRef().getType(), 0) + ";\n");
 	                }
 	            }
             }
             
-
             builder.append("dispatch_" + m.getName() + "(");
             builder.append("(mbuf[0] << 8) + mbuf[1] /* instance port*/");
             

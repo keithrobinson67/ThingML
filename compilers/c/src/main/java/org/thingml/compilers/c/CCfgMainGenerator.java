@@ -1114,14 +1114,15 @@ public class CCfgMainGenerator extends CfgMainGenerator {
 
         // Allocate a buffer to store the message bytes.
         // Size of the buffer is "size-2" because we have already read 2 bytes
+        builder.append("{");
         builder.append("uint8_t mbufi = 0;\n\n");
 
         builder.append("// Read the code of the next port/message in the queue\n");
-        builder.append("uint16_t code = fifo_dequeue() << 8;\n\n");
-        builder.append("code += fifo_dequeue();\n\n");
+        builder.append("uint16_t mcode = fifo_dequeue() << 8;\n\n");
+        builder.append("mcode += fifo_dequeue();\n\n");
 
         builder.append("// Switch to call the appropriate handler\n");
-        builder.append("switch(code) {\n");
+        builder.append("switch(mcode) {\n");
 
         Set<Message> messageSent = new HashSet<Message>();
 
@@ -1279,6 +1280,7 @@ public class CCfgMainGenerator extends CfgMainGenerator {
             builder.append("break;\n}\n");
         }
         ctx.clearConcreteThing();
+        builder.append("}\n");
         builder.append("}\n");
         builder.append("return 1;\n");  // Added by sdalgard
         builder.append("}\n");

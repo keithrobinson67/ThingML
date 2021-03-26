@@ -564,6 +564,7 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
 
         for (Session r : CompositeStateHelper.allContainedSessions(cs)) {
             builder.append("//Session " + r.getName() + "\n");
+            builder.append("{\n");
             builder.append("uint8_t " + ctx.getStateVarName(r) + "_event_consumed = 0;\n");
             // for all states of the region, if the state can handle the message and that state is active we forward the message
 
@@ -578,6 +579,7 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
                 generateMessageHandlers(thing, s, port, msg, builder, cs, r, ctx);
                 builder.append("}\n");
             }
+            builder.append("}\n");
             builder.append("//End Session " + r.getName() + "\n");
         }
     }
@@ -595,7 +597,7 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
         for (StateContainer r : CompositeStateHelper.allRegionsFor(cs)) {
         	
             builder.append("//Region " + r.getName() + "\n");
-
+            builder.append("{\n");
             // for all states of the region, if the state can handle the message and that state is active we forward the message
             builder.append("uint8_t " + ctx.getStateVarName(r) + "_event_consumed = 0;\n");
 
@@ -610,7 +612,8 @@ public class CThingImplCompiler extends FSMBasedThingImplCompiler {
                 generateMessageHandlers(thing, s, port, msg, builder, cs, r, ctx);
                 builder.append("}\n");
             }
-                builder.append("//End Region " + r.getName() + "\n");
+            builder.append("}\n");
+            builder.append("//End Region " + r.getName() + "\n");
         }
         
 

@@ -33,14 +33,14 @@ typedef enum {
 } gpio_dir_e;
 
 /* ADC operations */
-uint16_t adc_read(uint8_t port, uint8_t pin);
-bool adc_setref(uint8_t port, uint8_t pin, adc_refv_e ref_v);
+int adc_read(uint8_t port, uint8_t pin);
+int adc_setref(uint8_t port, uint8_t pin, adc_refv_e ref_v);
 
 /* GPIO operations */
-bool gpio_setmode(uint8_t port, uint8_t pin, gpio_dir_e dir);
-bool gpio_read(uint8_t port, uint8_t pin);
-bool gpio_write(uint8_t port, uint8_t pin, bool value);
+int gpio_setmode(uint8_t port, uint8_t pin, gpio_dir_e dir);
+int gpio_read(uint8_t port, uint8_t pin);
+int gpio_write(uint8_t port, uint8_t pin, bool value);
 
 /* PWM operations */
-bool pwm_start(uint8_t port, uint8_t pin, uint16_t duty);
-bool pwm_stop(uint8_t port, uint8_t pin);
+int pwm_start(uint8_t port, uint8_t pin, uint16_t duty);
+int pwm_stop(uint8_t port, uint8_t pin);

@@ -11,9 +11,6 @@ int fifo_byte_available();
 int fifo_empty();
 /* Return true if the fifo is full */
 int fifo_full();
-/* Enqueue 1 byte in the fifo if there is space
-   returns 1 for sucess and 0 if the fifo was full */
-int fifo_enqueue(byte b);
 /* Enqueue 1 byte in the fifo without checking for available space
    The caller should have checked that there is enough space */
 int _fifo_enqueue(byte b);

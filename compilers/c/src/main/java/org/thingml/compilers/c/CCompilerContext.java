@@ -266,6 +266,10 @@ public abstract class CCompilerContext extends Context {
     public String getCommonHeaderTemplate() {
         return getTemplateByID("ctemplates/" + getCompiler().getID() + "_thingml_typedefs.h");
     }
+    
+    public String getFifoTemplate() {
+        return getTemplateByID("ctemplates/fifo.c");
+    }
 
     public boolean containsParam(List<Parameter> list, Parameter element) {
         for (Parameter e : list) {

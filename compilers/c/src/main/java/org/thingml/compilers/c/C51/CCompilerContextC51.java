@@ -27,7 +27,6 @@ import org.thingml.xtext.helpers.ConfigurationHelper;
 import org.thingml.xtext.thingML.Configuration;
 import org.thingml.xtext.thingML.Instance;
 import org.thingml.xtext.thingML.Message;
-import org.thingml.xtext.thingML.Parameter;
 import org.thingml.xtext.thingML.Port;
 import org.thingml.xtext.thingML.Thing;
 import org.thingml.xtext.thingML.ThingMLModel;
@@ -91,8 +90,13 @@ public class CCompilerContextC51 extends CCompilerContext {
 
         pde.append(generatedCode.get(main).toString());
         //writeTextFile(getCurrentConfiguration().getName() + ".pde", pde.toString());
-        writeTextFile(getCurrentConfiguration().getName() + File.separatorChar + getCurrentConfiguration().getName() + ".ino", "#include <stdint.h>\n#include <Arduino.h>\n"+pde.toString());
+        writeTextFile(getCurrentConfiguration().getName() + File.separatorChar + getCurrentConfiguration().getName() + ".c", "#include <stdint.h>\n#include <stdbool.h>\n#include <8051.h>\n"+pde.toString());
 
+    }
+    
+    @Override
+    public String getFifoTemplate() {
+        return getTemplateByID("ctemplates/8051_fifo.c");
     }
  
     @Override

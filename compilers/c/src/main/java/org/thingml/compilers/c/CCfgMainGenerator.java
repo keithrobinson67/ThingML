@@ -172,7 +172,7 @@ public class CCfgMainGenerator extends CfgMainGenerator {
         String rtemplate = ctx.getRuntimeImplTemplate();
         rtemplate = rtemplate.replace("/*NAME*/", cfg.getName());
 
-        String fifotemplate = ctx.getTemplateByID("ctemplates/fifo.c");
+        String fifotemplate = ctx.getFifoTemplate();
         fifotemplate = fifotemplate.replace("#define FIFO_SIZE 256", "#define FIFO_SIZE " + ctx.fifoSize());
         fifotemplate = fifotemplate.replace("#define MAX_INSTANCES 32", "#define MAX_INSTANCES " + ctx.numberInstancesAndPort(cfg));
 

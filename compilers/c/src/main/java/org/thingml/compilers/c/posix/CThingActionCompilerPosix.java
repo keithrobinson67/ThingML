@@ -17,9 +17,14 @@
 package org.thingml.compilers.c.posix;
 
 import org.thingml.compilers.Context;
+import org.thingml.compilers.c.CCompilerContext;
 import org.thingml.compilers.c.CThingActionCompiler;
+import org.thingml.xtext.thingML.ADCCommand;
 import org.thingml.xtext.thingML.ErrorAction;
 import org.thingml.xtext.thingML.Expression;
+import org.thingml.xtext.thingML.GPIOCommand;
+import org.thingml.xtext.thingML.MCUExpression;
+import org.thingml.xtext.thingML.PWMCommand;
 import org.thingml.xtext.thingML.PrintAction;
 import org.thingml.xtext.thingML.Type;
 import org.thingml.xtext.validation.TypeChecker;
@@ -82,5 +87,58 @@ public class CThingActionCompilerPosix extends CThingActionCompiler {
 		}
 		if (action.isLine()) builder.append("fprintf(stdout, \"\\n\");\n");
 	}
+	
+    @Override
+    public void generate(MCUExpression expression, StringBuilder builder, Context ctx) {
+        CCompilerContext context = (CCompilerContext) ctx;
+        if (expression.getCommand() instanceof PWMCommand) {
+        	PWMCommand com = (PWMCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("start")) {
+            	final StringBuilder duty = new StringBuilder();
+            	final StringBuilder frequency = new StringBuilder();
+            	generate(com.getOp().getDuty(), duty, ctx);
+            	generate(com.getOp().getFrequency(), frequency, ctx);
+        		builder.append("pwm_start(" + port.toString() + "," + pin.toString() + "," + duty.toString() + ")");
+        	} else if (com.getOp().getType().equals("stop")) {
+        		builder.append("pwm_stop(" + port.toString() + "," + pin.toString() + ")");
+        	}
+        } else if (expression.getCommand() instanceof GPIOCommand) {
+        	GPIOCommand com = (GPIOCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("setmode")) {
+        		if (com.getOp().getDir().equals("in")) {
+        			builder.append("gpio_setmode(" + port.toString() + "," + pin.toString() + ",GPIO_DIR_IN)");
+        		} else if (com.getOp().getDir().equals("out")) {
+        			builder.append("gpio_setmode(" + port.toString() + "," + pin.toString() + ",GPIO_DIR_OUT)");
+        		}
+        	} else if (com.getOp().getType().equals("read")) {
+        		builder.append("gpio_read(" + port.toString() + "," + pin.toString() + ")");
+        	} else if (com.getOp().getType().equals("write")) {
+        		final StringBuilder val = new StringBuilder();
+            	generate(com.getOp().getValue(), val, ctx);
+        		builder.append("gpio_write(" + port.toString() + "," + pin.toString() + "," + val.toString() + ")");
+        	}
+        } else if (expression.getCommand() instanceof ADCCommand) {
+        	ADCCommand com = (ADCCommand)expression.getCommand();
+        	final StringBuilder port = new StringBuilder();
+        	final StringBuilder pin = new StringBuilder();
+        	generate(com.getDev().getPort(), port, ctx);
+        	generate(com.getDev().getPin(), pin, ctx);
+        	if (com.getOp().getType().equals("read")) {
+        		builder.append("adc_read(" + port.toString() + "," + pin.toString() + ")");
+        	} else if (com.getOp().getType().equals("setref")) {
+        		builder.append("adc_setref(ADC_REF_VDD)");
+        	} 
+        } else  {
+            builder.append("/* unrecognised MCU expression here */");
+        }
+    }
 
 }

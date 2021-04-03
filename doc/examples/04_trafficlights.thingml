@@ -96,6 +96,14 @@ configuration TrafficLights8051
 	connector trafficlights.timer => timer.timer
 }
 
+configuration TrafficLightsPosix
+@compiler "posix"
+{
+	instance trafficlights: TrafficLights 
+	instance timer : TimerArduino
+	connector trafficlights.timer => timer.timer
+}
+
 configuration TrafficLightsArduino
 @compiler "arduino"
 @arduino_stdout "Serial"

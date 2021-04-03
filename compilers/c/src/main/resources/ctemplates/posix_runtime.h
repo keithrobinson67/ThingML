@@ -60,6 +60,31 @@ void fifo_unlock_and_notify();
 
 void init_runtime();
 
+typedef enum {
+	ADC_REF_VDD,
+	ADC_REF_EXT,
+	ADC_REF_INT
+} adc_refv_e;
+
+typedef enum {
+	GPIO_DIR_IN,
+	GPIO_DIR_OUT
+} gpio_dir_e;
+
+/* ADC operations */
+int adc_read(uint8_t port, uint8_t pin);
+int adc_setref(uint8_t port, uint8_t pin, adc_refv_e ref_v);
+
+/* GPIO operations */
+int gpio_setmode(uint8_t port, uint8_t pin, gpio_dir_e dir);
+int gpio_read(uint8_t port, uint8_t pin);
+int gpio_write(uint8_t port, uint8_t pin, bool value);
+
+/* PWM operations */
+int pwm_start(uint8_t port, uint8_t pin, uint16_t duty);
+int pwm_stop(uint8_t port, uint8_t pin);
+
+
 #ifdef __cplusplus
 }
 #endif

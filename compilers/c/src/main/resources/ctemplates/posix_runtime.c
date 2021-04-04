@@ -15,6 +15,7 @@
 
 #include "runtime.h"
 
+static long start_time;
 
 #define MAX_INSTANCES 2
 #define FIFO_SIZE 32768
@@ -154,19 +155,23 @@ void fifo_unlock_and_notify() {
 /* ADC operations */
 int adc_read(uint8_t port, uint8_t pin)
 {
-	return -1;
+	printf("adc_read %d : %d\n", port, pin);
 }
 
 int adc_setref(uint8_t port, uint8_t pin, adc_refv_e ref_v)
 {
 	switch(ref_v) {
 	case ADC_REF_VDD:
+		printf("adc_setref VDD %d : %d\n", port, pin);
 		break;
 	case ADC_REF_EXT:
+		printf("adc_setref EXT %d : %d\n", port, pin);
 		break;
 	case ADC_REF_INT:
+		printf("adc_setref INT %d : %d\n", port, pin);
 		break;
 	default:
+		printf("adc_setref INVALID %d : %d\n", port, pin);
 		/* invalid reference requested */
 		return -1;
 		break;
@@ -177,28 +182,36 @@ int adc_setref(uint8_t port, uint8_t pin, adc_refv_e ref_v)
 /* GPIO operations */
 int gpio_setmode(uint8_t port, uint8_t pin, gpio_dir_e dir)
 {
-	return -1;
+	printf("gpio_setmode %d : %d : %d\n", port, pin, dir);
 }
 
 int gpio_read(uint8_t port, uint8_t pin)
 {
-	return -1;
+	printf("gpio_read %d : %d\n", port, pin);
 }
 
-int gpio_write(uint8_t port, uint8_t pin, uint8_t value)
+int gpio_write(uint8_t port, uint8_t pin, bool value)
 {
-	return -1;
+	printf("gpio_write %d : %d\n", port, pin);
 }
 
 /* PWM operations */
 int pwm_start(uint8_t port, uint8_t pin, uint16_t duty)
 {
-	return -1;
+	printf("pwm_start %d : %d : %d\n", port, pin, duty);
 }
 
 int pwm_stop(uint8_t port, uint8_t pin)
 {
-	return -1;
+	printf("pwm_stop %d : %d\n", port, pin);
+}
+
+uint32_t millis()
+{
+	struct timespec t;
+    (void)clock_gettime(CLOCK_MONOTONIC, &t);
+
+    return (t.tv_nsec - start_time) / 1000000;
 }
 
 
@@ -207,6 +220,10 @@ int pwm_stop(uint8_t port, uint8_t pin)
  ******************************************/
 
 void init_runtime() {
+  struct timespec t;
   pthread_mutex_init (&fifo_mut, NULL);
   pthread_cond_init (&fifo_cond, NULL);
+
+  (void)clock_gettime(CLOCK_MONOTONIC, &t);
+  start_time = t.tv_nsec;
 }

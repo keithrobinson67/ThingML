@@ -192,7 +192,7 @@ int gpio_read(uint8_t port, uint8_t pin)
 
 int gpio_write(uint8_t port, uint8_t pin, bool value)
 {
-	printf("gpio_write %d : %d\n", port, pin);
+	printf("gpio_write %d : %d : %d\n", port, pin, value);
 }
 
 /* PWM operations */

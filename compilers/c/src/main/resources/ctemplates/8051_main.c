@@ -21,6 +21,8 @@ void setup() {
 	PWM_CLOCK_DIV_8;
 	PWMPH = HIBYTE(0x7CF);
 	PWMPL = LOBYTE(0x7CF);
+
+	SysTick_Init();
 }
 
 void loop() {

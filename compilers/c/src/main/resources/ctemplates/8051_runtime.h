@@ -41,3 +41,6 @@ int gpio_write(uint8_t port, uint8_t pin, bool value);
 /* PWM operations */
 int pwm_start(uint8_t port, uint8_t pin, uint16_t duty);
 int pwm_stop(uint8_t port, uint8_t pin);
+
+uint32_t millis(void);
+bool SysTick_Init(void);

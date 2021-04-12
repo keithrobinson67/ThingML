@@ -4,10 +4,15 @@ import "lib/timer.thingml"
 thing Blink includes TimerClientPort {
 	
 	readonly property TimerID : UInt8 = 0
+	property value : Int16 = 0
 	
-	function led_init() `pinMode(LED_BUILTIN, OUTPUT);`
-	function led_on() 	`digitalWrite(LED_BUILTIN, HIGH);`
-	function led_off() 	`digitalWrite(LED_BUILTIN, LOW);`
+	//function led_init() `pinMode(1, OUTPUT);`
+	//function led_on() 	`digitalWrite(1, HIGH);`
+	//function led_off() 	`digitalWrite(1, LOW);`
+	
+	function led_init() do value = (gpio 1, 2 setmode out) as Int16 end
+	function led_on() 	do value = (gpio 1, 2 write 0) as Int16 end
+	function led_off() 	do value = (gpio 1, 2 write 1) as Int16 end
 
 	statechart init ON {
 		
@@ -36,6 +41,14 @@ thing Blink includes TimerClientPort {
 configuration BlinkArduino
 @compiler "arduino"
 @arduino_stdout "Serial"
+{
+	instance countdown: Blink
+	instance timer : TimerArduino
+	connector countdown.timer => timer.timer
+}
+
+configuration Blink8051
+@compiler "8051"
 {
 	instance countdown: Blink
 	instance timer : TimerArduino

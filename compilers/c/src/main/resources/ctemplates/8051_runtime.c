@@ -561,7 +561,7 @@ uint32_t millis(void)
 void Timer1_ISR (void) interrupt 3
 {
 	TH1 = HIBYTE(TIMER_DIV12_VALUE_1ms);
-  TL1 = LOBYTE(TIMER_DIV12_VALUE_1ms);
+    TL1 = LOBYTE(TIMER_DIV12_VALUE_1ms);
 	milliseconds++;
 }
 
@@ -570,8 +570,10 @@ bool SysTick_Init(void)
 	TIMER1_MODE1_ENABLE;
 	clr_T1M;
 	TH1 = HIBYTE(TIMER_DIV12_VALUE_1ms);
-  TL1 = LOBYTE(TIMER_DIV12_VALUE_1ms);
+    TL1 = LOBYTE(TIMER_DIV12_VALUE_1ms);
 	milliseconds = 0;
+
+	set_ET1;
+	set_TR1;
 	return true;
 }
-

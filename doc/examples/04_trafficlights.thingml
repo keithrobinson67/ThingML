@@ -100,7 +100,7 @@ configuration TrafficLightsPosix
 @compiler "posix"
 {
 	instance trafficlights: TrafficLights 
-	instance timer : TimerArduino
+	instance timer : TimerPosix
 	connector trafficlights.timer => timer.timer
 }
 

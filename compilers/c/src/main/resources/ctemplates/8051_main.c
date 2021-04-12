@@ -23,11 +23,16 @@ void setup() {
 	PWMPL = LOBYTE(0x7CF);
 
 	SysTick_Init();
+
+	set_EA;
+	while(EA == 0);
 }
 
 void loop() {
+	while (1) {
 /*POLL_CODE*/
     processMessageQueue();
+	}
 }
 
 void main(void)

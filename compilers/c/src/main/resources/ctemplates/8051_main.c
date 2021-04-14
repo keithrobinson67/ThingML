@@ -31,7 +31,13 @@ void setup() {
 void loop() {
 	while (1) {
 /*POLL_CODE*/
-    processMessageQueue();
+		if (processMessageQueue() == 0) {
+			int swap;
+			swap = fifo_dq;
+			fifo_dq = fifo_enq;
+			fifo_enq = swap;
+			set_IDL;
+		}
 	}
 }
 

@@ -1717,12 +1717,14 @@ public class CCfgMainGenerator extends CfgMainGenerator {
         builder.append(ctx.getPollCode());
         builder.append("// End Network Listener\n\n");
 
+        /*
         if(ctx.getCompiler().getID().compareTo("arduino") != 0 || ctx.getCompiler().getID().compareTo("arduinomf") != 0) { //FIXME Nicolas This code is awfull
             //New Empty Event Handler
             builder.append("int emptyEventConsumed = 1;\n");
             builder.append("while (emptyEventConsumed != 0) {\n");
             builder.append("emptyEventConsumed = 0;\n");
         }
+        */
 
         // Call empty transition handler (if needed)
         for (Instance i : ConfigurationHelper.allInstances(cfg)) {
@@ -1730,23 +1732,18 @@ public class CCfgMainGenerator extends CfgMainGenerator {
             if (ThingMLHelpers.allStateMachines(i.getType()).size() > 0) { // There has to be only 1
                 CompositeState sm = ThingMLHelpers.allStateMachines(i.getType()).get(0);
                 if (StateHelper.hasEmptyHandlersIncludingSessions(sm)) {
-                	if(ctx.getCompiler().getID().compareTo("arduino") != 0 || ctx.getCompiler().getID().compareTo("arduinomf") != 0) {
-                    builder.append("emptyEventConsumed += ");
-                    }
+                	//if(ctx.getCompiler().getID().compareTo("arduino") != 0 || ctx.getCompiler().getID().compareTo("arduinomf") != 0) {
+                    //builder.append("emptyEventConsumed += ");
+                    //}
                     builder.append(ctx.getEmptyHandlerName(i.getType()) + "(&" + ctx.getInstanceVarName(i) + ");\n");
                 }
             }
         }
         
-        
-        
-
-        if(ctx.getCompiler().getID().compareTo("arduino") != 0 || ctx.getCompiler().getID().compareTo("arduinomf") != 0) {
-            builder.append("}\n");
-        }
-        
-        
-        
+        //if(ctx.getCompiler().getID().compareTo("arduino") != 0 || ctx.getCompiler().getID().compareTo("arduinomf") != 0) {
+        //    builder.append("}\n");
+        //}
+              
         for(NetworkLibraryGenerator nlg : ctx.getNetworkLibraryGenerators()) {
             nlg.generatePollCode(builder);
         }

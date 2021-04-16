@@ -1,0 +1,58 @@
+import "datatypes.thingml" from stl
+
+thing Blink {
+	
+	property value : Int16 = 0
+	property off_counter : Int16 = 0
+	property on_counter : Int16 = 0
+	
+	function led_init() do value = (gpio 1, 2 setmode out) as Int16 end
+	function led_on() 	do value = (gpio 1, 2 write 0) as Int16 end
+	function led_off() 	do value = (gpio 1, 2 write 1) as Int16 end
+
+	statechart init ON {
+		
+		on entry led_init()
+		
+		state ON {
+			on entry do	
+				led_on()
+			end
+			
+			transition -> ON guard on_counter < 500 action do
+														on_counter = on_counter + 1
+													  end
+			transition -> OFF guard on_counter == 500 action do
+														on_counter = 0
+													  end
+		}
+		
+		state OFF {
+			on entry do 
+				led_off()
+			end
+			
+			
+			transition -> OFF guard off_counter < 500 action do
+														off_counter = off_counter + 1
+													  end
+			transition -> ON guard off_counter == 500 action do
+														off_counter = 0
+													  end
+														
+		}
+	}
+}
+
+configuration BlinkArduino
+@compiler "arduino"
+@arduino_stdout "Serial"
+{
+	instance countdown: Blink
+}
+
+configuration Blink8051
+@compiler "8051"
+{
+	instance countdown: Blink
+}

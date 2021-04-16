@@ -1,0 +1,78 @@
+import "datatypes.thingml" from stl
+
+thing fragment LedMessages {
+	message ledon();
+	message ledoff();
+}
+
+thing Switch includes LedMessages {
+	
+	property off_counter : Int16 = 0
+	property on_counter : Int16 = 0
+	
+	provided port switch {
+		sends ledon
+		sends ledoff
+	}
+
+	statechart init ON {
+		
+		
+		state ON {
+			
+			on entry switch!ledon()
+			
+			transition -> ON guard on_counter < 1000 action do
+														on_counter = on_counter + 1
+													  end
+			transition -> OFF guard on_counter == 1000 action do
+														on_counter = 0
+													  end
+		}
+		
+		state OFF {
+			
+			on entry switch!ledoff()
+			
+			transition -> OFF guard off_counter < 1000 action do
+														off_counter = off_counter + 1
+													  end
+			transition -> ON guard off_counter == 1000 action do                                          
+														off_counter = 0
+													  end
+														
+		}
+	}
+}
+
+thing Blink includes LedMessages {
+	
+	property value : Int16 = 0
+	
+	function led_init() do value = (gpio 1, 2 setmode out) as Int16 end
+	function led_on() 	do value = (gpio 1, 2 write 0) as Int16 end
+	function led_off() 	do value = (gpio 1, 2 write 1) as Int16 end
+	
+	required port switch {
+		receives ledon
+		receives ledoff
+	}
+
+	statechart init RUN {
+		
+		//on entry led_init()
+		
+		state RUN {	
+			transition -> RUN event e : switch?ledon action led_on()
+		    transition -> RUN event e : switch?ledoff action led_off()
+		}
+	}
+}
+
+configuration BlinkySwitch8051
+@compiler "8051"
+{
+	instance blink: Blink
+	instance switch: Switch
+	connector blink.switch => switch.switch
+}

@@ -9,6 +9,12 @@ void setup() {
 }
 
 void loop() {
+	int swap;
 /*POLL_CODE*/
-    processMessageQueue();
+	while (processMessageQueue() != 0)
+		;
+	swap = fifo_dq;
+	fifo_dq = fifo_enq;
+	fifo_enq = swap;
+	delayMicroseconds(1000);
 }

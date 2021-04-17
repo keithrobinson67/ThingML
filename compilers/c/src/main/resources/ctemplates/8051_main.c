@@ -23,21 +23,21 @@ void setup() {
 	PWMPL = LOBYTE(0x7CF);
 
 	SysTick_Init();
-
-	set_EA;
-	while(EA == 0);
 }
 
 void loop() {
 	while (1) {
+		int swap;
 /*POLL_CODE*/
-		if (processMessageQueue() == 0) {
-			int swap;
-			swap = fifo_dq;
-			fifo_dq = fifo_enq;
-			fifo_enq = swap;
-			set_IDL;
-		}
+		while (processMessageQueue() != 0)
+			;
+
+		swap = fifo_dq;
+		fifo_dq = fifo_enq;
+		fifo_enq = swap;
+		set_EA;
+		set_IDL;
+		clr_EA;
 	}
 }
 

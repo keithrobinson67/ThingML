@@ -93,6 +93,11 @@ public class CCompilerContextArduino extends CCompilerContext {
         writeTextFile(getCurrentConfiguration().getName() + File.separatorChar + getCurrentConfiguration().getName() + ".ino", "#include <stdint.h>\n#include <Arduino.h>\n"+pde.toString());
 
     }
+    
+    @Override
+    public String getFifoTemplate() {
+        return getTemplateByID("ctemplates/arduino_fifo.c");
+    }
  
     @Override
     public void generatePSPollingCode(Configuration cfg, StringBuilder builder) {
